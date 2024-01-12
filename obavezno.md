@@ -43,7 +43,7 @@ Type/Length vrijednost | Protokol
 --- | ---
 0x0800 | IPv4
 0x0806 | ARP
-0x08d6 | IPv6
+0x86dd | IPv6
 ___
 
 ### *IPv4 Header polja*
@@ -77,7 +77,9 @@ Protocol vrijednost | Protokol
 
 ___
 
-### IPv6 Header polja
+### IPv6 Header polja  
+![ipv6-header-enumerated](./ipv6-header-enumerated.png "IPv6 Header")
+
 Polje | Znacenje
 --- | ---
 Version | uvijek =6 (0b0110) za IPv6
@@ -93,6 +95,9 @@ ___
 ### TCP i UDP 
 
 ![tcp-header](./TCP%20i%20UDP%20headeri.png "TCP Header")  
+
+*TCP - Transmission Control Protocol*  
+*UDP - User Datagram Protocol*  
 
 Polje | Znacenje
 --- | ---
@@ -120,9 +125,26 @@ SYN | Koristi se *samo* u prvom koraku 3-way handshake-a (*uspostavljanje TCP ve
 FIN | Slanje zahtjeva za zavrsavanje komunikacije kada nema vise podataka
 
 *TCP Three-way handhake*  
-![tcp-threeway-handshake](./3way%20handshake.jpg "TCP Three-way handshake")  
+![tcp-threeway-handshake](./bitno_za_napamet/3way%20handshake.jpg "TCP Three-way handshake")  
 - Kolicina korisnih podataka u prvom frejmu/paketu/segmentu *je uvijek NULA*
 - Dakle, procentualna kolicina kontrolnih podataka je 100%, a korisnih 0%
+
+### ICMP (Internet Control Message Protocol)
+
+![icmp-header](./icmp%20header.png "ICMP Header")
+Polje | Znacenje
+--- | ---
+Type | Tip poruke
+Code | Pod-tip poruke
+Checksum | Error-checking
+
+*Vrijednosti ICMP Type polja (ima ih brukica ovo su samo neki)*
+Vrijednost | Podtipovi |Znacenje
+--- | --- | ---
+0 | 0 | Echo Reply
+8 | 0 | Echo Request
+11 | 0 | Time Exceeded (ttl=0 ili predugacak fragment reassembly)
+30 | 0 | Traceroute (information request)
 
 ___
 
@@ -147,7 +169,7 @@ ___
 *IPv4 Klase*
 Klasa | Prvi biti | Svrha
 --- | --- | ---
-A | 0... | Velike mreze
+A | 0... | GAN
 B | 10.. | WAN
 C | 110. | LAN
 D | 1110 | Multicast
@@ -165,7 +187,7 @@ Naziv | Vrijednost | Upotreba
 --- | --- | ---
 Network | prva adresa u mrezi | odredjivanje mreze
 Broadcast | zadnja adresa u mrezi | broadcast komunikacija (svi uredjaji)
-Default route | 0.0.0.0, rezervisan 0.0.0.0/8
+Default route | 0.0.0.0, rezervisan 0.0.0.0/8 | prosljedjivanje paketa sa nepoznatom odredisnom mrezom
 Loopback | 127.0.0.1, rezervisan 127.0.0.0/8 | slanje samom sebi
 Link-local | 169.254.0.0/16 | kad je DHCP nedostupan, ne mogu se koristiti na javnoj mrezi
 Test-NET | 192.0.2.0/24 | ucenje i predavanje, mogu se koristiti na javnoj mrezi
@@ -178,6 +200,7 @@ ___
 ### Teze i ostalo
 - sve multicast IPv6 adrese dijele prvih 8 bita (prvi bajt) -> 0xFF::/8
 - vel. IPv6 headera = 40B (const.), vel. IPv4 headera: 20 -:- 60 bajtova (0b1111 * 4 = 60)
+- ne postoji broadcast u IPv6 protokolu
 - entry u MAC tabeli switch-a: `[MAC_adresa, izlazni_interfejs]`
 - Manchester kodovanje: `0 -> 01, 1 -> 10`, zadrzava se interval (dijeli se na dva dijela)
 - 4B5B kodovanje: treba nauciti cijelu tabelu, ovo moze lako lagano dati jer mu se moze
@@ -188,4 +211,14 @@ ___
 - kod komunikacije izmedju hosta i web-servisa, na portovima 80/443, uspostavlja se *SAMO JEDNA* TCP veza
 - DHCP server (ukoliko ne pruza i DNS servis) ne moze da uspostavi TCP konekciju sa nekim TCP-baziranim servisom (npr. HTTP/S)
 - DNS Resolver nece biti aktiviran ukoliko se ne referencira simbolicko ime
+- Malo chatgpt:
+```
+Ruteri odbacuju IP pakete čija vrednost polja Time-to-Live (TTL) dostigne 0. Vrednost TTL se umanjuje svaki put kada paket prolazi kroz ruter. Ovo je deo osnovnog mehanizma za sprečavanje beskonačnih petlji u mrežama.
+Postupak je sledeći:
+
+- Kada izvor kreira IP paket, polje TTL se postavlja na određenu vrednost (najčešće se postavlja na neki inicijalni broj, na primer, 64).
+- Kada ruter prima paket, on umanjuje vrednost polja TTL za 1.
+- Ako vrednost postane 0, ruter odbacuje paket i šalje ICMP poruku "Time Exceeded" izvoru kako bi ga obavestio da je paket odbačen zbog isteka vremena.
+- Ako vrednost TTL nije 0, ruter prosleđuje paket na sledeći čvor u mreži.
+```
 ___
