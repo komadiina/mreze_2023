@@ -1,0 +1,442 @@
+--- Za prakticni
+
+*** [02] Modeli komunikacije ***
+
+- OSI:
+	v Application	- APDU		- ? / HTTP
+	v Presentation	- PPDU		- ? / SSL
+	v Session	- SPDU		- ? / RPC
+	v Transport	- TPDU		- Gateway / TCP, UDP 
+	v Network	- Packet	- Router, L3 Switch / IP, ICMP
+	v Data Link	- Frame		- Switch, Bridge, NIC / MAC, PPP
+	_ Physical	- Bit		- Hub, Repeater	/ Ethernet
+
+- fizicki je implementiran na hardveru, sloj veze podataka je implementiran i na hardveru i softveru, dok su svi iznad implementirani na softveru
+
+- TCP/IP:
+	v Application 	(Application, Presentation, Session)
+	v Transport
+	v Internet 	(Network)
+	_ Network Acces (Data Link, Physical)
+
+
+- enkapsulacija - slojno dodavanje kontrolnih parametara (header/trailer)
+- sloj 2 (data link sloj) dodaje i trailer
+- PDU - protocol data unit
+- pdu na 3. sloju sadrzi dest+src+data informacije (D/S net/dev addr)
+
+
+*** [03] Fizicki sloj ***
+- prima frejm i kodira ga u niz signala koji predstavlja njegove bite jedan po jedan (amplitudno, fazno, frekventno)
+- identifikacija frejma - pocetak i kraj
+- sinhronizacija komunikacije pomocu clock-a
+- 10Base-T je RZ (Manchester kodovanje), postoji i NRZ (okti)
+- prenos putem sablona bita signala 
+- kodne grupe (smanjenje gresaka) (4b kodovanje u 5b kodovanje, 4B5B)
+- bandwidth, throughput, goodput
+- tipovi fizickih medijuma (teorijski)
+
+
+*** [04] Sloj veze podataka ***
+- framing i media access control + error detection
+- primljen paket uokviruje u FREJM
+- dodaje ili uklanja okvir (header i trailer) pri prenosu na sledeci sloj
+- uokviravanje | fizicko adresiranje | kontrola protoka | kontrola gresaka | kontrola pristupa medijumu
+- sadrzi dva podsloja:
+	- LLC (Logical Link Control) - softverski definisan	
+	- MAC (Media Access Control) - hardverski definisan
+- LLC: uokviruje paket iz mreznog sloja i prepoznaje koristeni protokol
+- MAC: adresira frejm i oznacava pocetak i kraj frejma
+- MAC takodje regulise smjestanje frejmova na medijum - smanjuje koliziju
+	- brzina razmjene paketa i kolicina kolizija je medjusobno srazmjerno
+- za dijeljeni medijum (>=3) MAC definise dvije osnovne metode:
+	1. Kontrolisana - deterministicka metoda putem vremena
+	2. Kontenciono-bazirana - CSMA/CD, CSMA/CA - nedeteriministicka metoda,				svi cvorovi konkurisu za medijum
+- za nedijeljeni medijum (1-1, P2P)
+	1. half-duplex (samo jedan uredjaj zauzima medijum u trenutku)
+	2. full-duplex (oba uredjaja mogu zauzeti medijum u trenutku)
+
+|------------------------------- FRAME ---------------------------------|
+|----------- HEADER ------------|------- DATA -------|----- TRAILER ----|
+|-START-|-ADDRESS-|-TYPE/LENGTH-|--------------------|-- FCS --|- STOP -|
+|-----------------------------------------------------------------------|
+
+- glavna funkcija trailera je OTKRIVANJE gresaka
+- error detection vs error correction
+- FCS - Frame Check Sequence polje
+- CRC - Cyclic Redundancy Check
+- vise modova rada sviceva:
+	a. Store and Forward (S&F) - ceka na cijeli frejm pa ga tek onda prosljedjuje - izvrsava CRC jedanput
+	b Cut-through - prosljedjuje cijeli frejm cim stigne - ne izvrsava CRC
+
+|- Switching Type -|- No. of CRC -|
+|---------------------------------|
+|  Store & Forward |	   1      |
+|  Cut-through     |       0      |
+|---------------------------------|
+| Router           |       2      |
+| Host 		   |       1      |
+|---------------------------------|
+
+
+*** [04] Ethernet i STP ***
+- obuhvata sve fizicke slojeve OSI modela komunikacije - MAC podsloj i fizicki sloj
+- IEEE 802.3
+- prije: hub, dijeljeni medijum -> half-duplex
+- danas: switch, full-duplex, povecan broj kolizionih domena
+- dvije vrste ethernet framinga:
+	1. IEEE 802.3 Ethernet
+	2. DIX Ethernet
+	- razlika: SFD (Start of Frame Delimiter), ukljucivanje Length u Type polje
+
+-> IEEE 802.3
+      | Naziv polja | 	# bajtova |
+	Preamble 	7
+	SFD		1
+	Dest. Addr.	6
+	Src. Addr.	6
+	Len/Type	2
+  802.3 Header+Data	46 -:- 1500
+	FCS		4
+
+-> DIX Ethernet
+	Preamble	8
+	Dest. Addr.	6
+	Src. Addr.	6
+	Type		2
+	Data		46 -:- 1500
+	FCS		4
+
+(IEEE 802.3)
+- Destination i Source adrese su MAC adrese
+- Length/Type - >= 0x0600 polje oznacava protokol, inace velicinu (bez preambule i SFD-a)
+- Data + Padding: enkapsulirani paket sa viseg sloja, ako je size(Data) <= minimalne dozvoljene, onda se nadopunjuje
+- FCS detektuje greske u frejmu, koristi CRC, a ne koristi preambulu i SFD u racunanju
+
+(IEEE 802.3ac)
+| Destination Addr. | Source Addr. | 802.1Q VLAN Tag (4B) | Type/Len | Data | FCS |
+				   | Tag Protocol, 0x8100 |
+				   | User Priority (3b)   |
+				   | CFI (1b)             |
+				   | VLAN ID (12b)        |
+
+- struktura MAC adrese (6 bajtova, 48 bita)
+- prva 3 bajta = proizvodjac (OUI - Organizationally Unique Identifier)
+- druga 3 bajta = jedinstveni serijski broj kartice (u ROM-u uredjaja, a kopira se u RAM)
+- dva nivoa adresiranja:
+	1. logicko - omogucava paketu da stigne do konacnog odredista (IP adrese)
+	2. fizicko - omogucava paketu da se prenosi putem medijuma, od segmenta do segmenta
+- IP adrese se razlikuju po tome sto omogucavaju uredjajima da komuniciraju van svoje mreze, dok se unutar jedne mreze koriste MAC adrese za identifikaciju uredjaja
+
+|- Dest. MAC -|- Source MAC -|- Dest. IP -|- Source IP -|- Data -|- Trailer -|
+			     |-------- IP Packet -------|
+|----------------------------- Ethernet frame -------------------------------|		
+
+- vise tipova poruka:
+	* Unicast 	1 to 1		HTTP
+	* Broadcast	1 to All	DHCP, ARP
+	* Multicast 	1 to Many	IGMP
+- kod odredjivanja MAC Multicast adrese:
+	01-00-5e + 23 niza bita IP multicast adrese -> 25. bit je 0
+
+- CSMA/CD: Carrier Sense - Multiple Access / Collision Detection
+	CS: osluskuje kanal, ako je zauzet - ceka, ako je slobodan - salje
+	MA: u slucaju da je kanal zauzet u medjuvremenu prije slanja paketa, dolazi do mijesanja signala i unistavanja poruka
+	CD: pri koliziji, signal koji se detektuje na krajevima kanala ima amplitudni porast cime ukazuje na zadatu koliziju
+	Jam signal: salje ga uredjaj koji salje paket ukoliko dodje do kolizije
+		- 101010101010101010... [32-bit]
+	Random backoff: ukoliko je ocitan Jam signal, odlaze se slanje na neki nasumican period
+	
+- Hub ne obavlja nikakvo filtriranje saobracaja, te se bazira na principu dijeljenja bandwidth-a
+- kolizioni domen je jednak jedinici (C_d = 1)
+- prosirivanje mreze utice na povecanje kasnjenja i smanjenje dostupnog bandwidth-a svakom uredjaju
+- Hub samo regenerise signal i salje ga na sve ostale portove (ne razumije MAC adrese)
+- broj kolizionih domena = broj uredjaja koji mogu istovremeno emitovati
+- Hub prosiruje kolizioni domeni, a svaki uredjaj prikljucen na hub cini 1 C_d
+
+- Switch segmentise LAN u zasebne kolizione domene, pri cemu svaki port predstavlja C_d, te nema dijeljenja bandwidth-a
+- kolizioni domen kod Switch-a je dio LAN mreze na kome se moze desiti kolizija istovremenim slanjem okvira
+- L1 uredjaji prosiruju kolizioni domen, dok L2 i L3 dijele kolizioni domen
+- Broadcast domen je dio LAN mreze na kme se svim stanicama prosljedjuje okvir sa odredisnom broadcast adresom (1 mrezna adresa = 1 broadcast domen)
+- L1 i L2 uredjaji prosiruju broadcast domen, a L3 uredjaji dijele
+
+
+|- Sloj -|- Kolizioni -|- Broadcast -|
+|------------------------------------|
+|   L1   |  Prosiruje  |  Prosiruje  |
+|   L2   |   Dijeli    |  Prosiruje  |
+|   L3   |   Dijeli    |   Dijeli    |
+|------------------------------------|
+
+- Switch koristi MAC tabelu, a prakticno se naziva jos i multiportni bridge
+	- bridge povezuje dva mrezna segementa
+	- selektivno prosljedjivanje (selective forwarding)
+- Prosljedjivanje se obavlja na osnovu Destination MAC adrese u PDU
+	- Ukoliko source MAC adresa nije u MAC tabeli = unosi se u nju
+- Switch radi na osnovu par baznih operacija:
+	1. Learning - pamcenje MAC adresa i portova na kojim se nalaze
+	2. Aging - vremenska oznaka za svaki unos, lease time/refresh nakon isteka vremena
+	3. Flooding - broadcast slanje poruke za popunjavanje prazne MAC tabele
+	4. Selective forwarding - usmjeravanje poruke na pravi port
+	5. Filtering - filtriranje odredjenih paketa (npr. nevazeci CRC checksum) 
+- broadcast frejm ima sve jedinice u Destination Address polju (FF, ff:ff:ff:ff:ff:ff)
+
+- ARP - Address Resolution Protocol
+	1. Prevodi IPv4 adrese u MAC adrese
+	2. Odrzavanje kesa u mapiranjima (ARP tabela, ARP cache)
+- ARP tabela se cuva u RAM-u
+- odrzava se na dva nacina:
+	1. Kada cvor primi frejm, upise Source IP i MAC adresu u isti
+	2. Ako zna za IP, a ne i za MAC adresu, tada salje broadcast ARP request svima u mrezi i ocekuje ARP reply
+- svaki unos ima svoj lifetime
+
+- STP - Spanning-Tree Protocol
+- sluzi za uklanjanje petlji na L2 nivou LAN mreza (koje se javljaju usljed uvodjenja redudantnih veza)
+- redundantne veze se uvode da bi mreza bila otpornija na otkaze
+- nema polja za kontrolisanje zivotnog vijeka (npr. TTL kod IP paketa)
+- petlje se prekidaju tako sto se redundantna veza privremeno iskljucuje
+- desavaju se usljed vise dogadjaja:
+	1. Broadcast storming - broadcast okvir neograniceno kruzi po petlji
+	2. Nestabilnost bridzing tabela 
+		- kruzenje uzrokuje pogresne upise u bridzing tabelu
+		- okviri se salju na pogresnu stranu
+	3. Dupliranje pristiglih okvira
+		- kao posljedica kruzenja iz 2), unicast paketi se dupliraju na krajevima i pristizu vise puta do odredista
+- pri blokiranju odredjenih linkova bitno je da se odrzi potpuna povezanost
+- nacin funkcionisanja se ogleda u stvaranju logicke topologije stabla
+	1. bira se centar stabla - Root Switch
+	2. formira se stablo
+	3. portovi stabla se stavljaju u Forwarding State
+	4. ostali portovi koji zatvaraju petlje se stavljaju u Blocking State
+- svicevi komuniciraju putem BPDU poruka: Bridge PDU
+	|- Bridge ID -|- Port Cost -|- Path Cost -|
+	- Bridge ID: identifikacija switcha (bridza)
+	- Port Cost: cjelobrojna vrijednost pridruzena portu
+	- Path Cost: vrijednost kojom se odredjuje optimalna putanja
+- STP proces:
+	1. Izbor root bridza - najmanja vrijednost Bridge ID-a
+	2. Izbor root portova - port sa najmanjom Path Cost vrijednosti
+	3. Izbor designated portova
+		- kriterijum: najmanji Path Cost do root bridza i najmanji Bridge ID
+	4. Blokiranje preostalih portova
+
+
+*** [06] Mrezni sloj ***
+- omogucuje uredjajima na istoj mrezi da komuniciraju medjusobno
+- koristi 4 osnovna procesa:
+	1. Adresiranje
+	2. Enkapsulacija (predajnik)
+	3. Rutiranje
+	4. Dekapsulacija (prijemnik) 
+- connectionless, best effort i ne zavisi od medijuma (osim u slucaju fragmentacije paketa - MTU = Maximum Transmission unit)
+- u vecini slucajeva IPv4 se moze prenositi i preko bakrenog/optickog/wireless medijuma, kao i putem Ethernet/Serial/Fiber tipa
+
+- predajnik ne zna:
+	- da li je prijemnik prisutan	
+	- da li je paket stigao
+	- da li prijemnik moze ocitati paket
+- prijemnik ne zna:
+	- kada stize paket
+
+- na transportnom sloju, TPDU se sastoji od:
+|---------------------------|
+|- Segment Header -|- Data -|
+|---------------------------|
+
+dok se pri enkapsulaciji TPDU na mreznom sloju stvara IP paket:
+|---------------------------|
+|- IP Header -|---- TPDU ---|
+|---------------------------|
+
+- primjer IP zaglavlja
+- svaka mreza je 1 broadcast domen
+- Gateway predstavlja odgovor na problem neznanja IP adresa udaljenih hostova od strane hostova unutar mreze - svi paketi za neku udaljenu mrezu se prosljedjuju kroz ovaj port/adresu
+- IP adresa se moze podijeliti na dva dijela:
+
+|----------------------- IPv4 Address --------------------------|
+|--- Octet 1 ---|--- Octet 2 ---|--- Octet 3 ---|--- Octet 4 ---|
+|---------------------------------------------------------------|
+tj. na [----- Network portion -----|---- Host portion -----], pri cemu Network portion odredjuje mreznu adresu hosta, a Host portion je dio rezervisan za hostove te iste mreze (2^n - 2 maksimalnih adresa, pri cemu je n broj bita u host opsegu)
+
+- kod rutera, pri rutiranju moguce je popuniti Routing table na dva nacina:
+	1. statickim rutiranjem (rucno definisanje ruta)
+	2. dinamicko rutiranje (protokol rutiranja, npr. RIP, OSPF)
+	3. direktno povezane mreze se automatski unose u tabelu rutiranja
+		- Direktno povezana mreza: mreza koja se nalazi na interfejsu rutera
+		- Udaljena mreza: mreza koja se ne nalazi na jednom od portova posmatranog rutera
+- ruta se sastoji od:
+	1. odredisne mreze
+	2. maske odredisne mreze
+	3. next hop adrese (ukoliko je CIDR, Classless Interdomain Routing)
+	4. metrike
+- za direktno povezanu mrezu ne postoji next hop adresa, jer se svi nalaze na istom interfejsu
+- Ruter prosljedjuje paket po principu Packet-by-Packet i Hop-by-Hop
+- ruter sa paketom moze uraditi jednu od 3 stvari:
+	1. proslijediti ga next hop-u (ukoliko odredisna adresa nije u direktno 		povezanoj mrezi)
+	2. proslijediti ga odredisnom hostu
+	3. odbaciti ga
+		3a. ukoliko nema definisan next hop za datu odredisnu adresu,
+			ruter odbacuje paket akko nema definisanu defaultnu 			rutu
+
+
+- postupak prosljedjivanja paketa je sledeci:
+	1. Ruter prima L2-enkapsuliran frejm sa IP paketom
+	2. Ruter dekapsulira frejm
+	3. Iz dekapsuliranog IP paketa, ruter izvlaci odredisnu IP adresu
+	4. ukoliko postoji ruta za odredisnu adresu (mrezu), ruter ga prosljedjuje next hop-u
+		4a. ukoliko ne postoji, ruter ga odbacuje
+		4b. u suprotnom smanjuje njegovu TTL vrijednost za 1
+	5. enkapsulira prethodno dekapsulirani paket
+	6. prosljedjuje ga next hopu
+
+
+*** [07] IPv4 ***
+
+- 32-bitna adresa sa dotted-decimal reprezentacijom
+- dva dijela: network i host
+- dva nacina reprezentacije:
+	1. Prefix-based - oznacavanje pripadajuceg broja bita network dijelu
+	2. Subnet-based - adresa hosta + subnet maska (jedinice za network, nule za host dio)
+- postoji vise IPv4 adresa:
+	- mrezna (network) adresa
+	- broadcast adresa	
+	- host adresa
+- ne mogu se koristiti sve adrese iz citavog opsega:
+|---------- Address type -----|-------------- Svrha ------------|------ Rezervisan domen -------|
+| Host address		      |	IPv4 hostovi			| 0.0.0.0 -:- 223.255.255.255	|
+|-----------------------------|---------------------------------|-------------------------------|
+| Multicast address	      |	multicast grupe na		| 224.0.0.0 -:- 239.255.255.255 |
+|			      |	lokalnoj mrezi			|				|
+|-----------------------------|---------------------------------|-------------------------------|
+| Experimental addresses      |	razvoj i eksperimentisanje	| 240.0.0.0 -:- 255.255.255.254 |
+|			      |	ne mogu se koristiti za 	|				|
+|			      |	IPv4 hostove			|				|
+|-----------------------------|---------------------------------|-------------------------------|
+- privatni blokovi adresa:
+	- 10.0.0.0/8
+	- 172.16.0.0/12
+	- 192.168.0.0/16
+- sve privatne adrese moraju biti jedinstvene samo na toj mrezi
+- za pristup internetu, pri prevodjenju iz privatnih u javne adrese (te u svrhu multipliciranja ip adrese na vise uredjaja) koristi se NAT protokol koji prevodi Source/Destination IP adrese prema datoj tabeli
+- specijalne/rezervisane adrese:
+	--- Default route 	==> 0.0.0.0, tj. 0.0.0.0/8
+	--- Loopback		==> 127.0.0.1, tj. 127.0.0.0/8
+	--- Link-local		==> 169.254.0.0/16 
+		- OS ih dodjeljuje ukoliko nije moguce dobiti odgovarajucu IP adresu putem DHCP-a
+	--- TEST-NET		==> 192.0.2.0/24 (mogu se koristiti)
+	--- Multicast/Exper.    ==> .
+- (bitsko) Host_IP & Host_Subnet = Host_NetAddr
+- ICMP protokol: Echo Request i Echo Reply
+- testiranje pomocu ping direktive:
+	- ping 127.0.0.1 - testiranje TCP/IP protokol steka na hostu
+	- ping default gateway - testiranje konekcije na LAN-u
+	- ping remote host - testiranje konekcije prema udaljenom LAN-u
+- pri komunikaciji (ping, tracert, etc.) koristi se ICMP - Internet Control Message Protocol
+- definise control i error poruke:
+	- Host Confirmation (Echo Reply)
+	- Unreachable Destination/Service, sa kodovima:
+		0 -> net unreachable
+		1 -> host unreachable
+		2 -> protocol unreachable
+		3 -> port unreachable
+	- Time Exceeded (TTL=0)
+	- Route redirection (postojanje bolje putanje za odrediste)
+	- Source quench (poruka hostovima da uspore slanje)
+
+
+*** [08] Transportni sloj ***
+- priprema podatke sa aplikacionog sloja za slanje putem mreze, ili obrnuto
+- APDU sadrzi samo podatke, dok TPDU dodaje transportno zaglavlje
+- vrsi razlicite funkcije:
+	1. odlucuje o prenosu na osnovu prirode aplikacije (npr. TCP ili UDP)
+	2. identifikuje razlicite aplikacije (portove)
+	3. segmentira podatke aplikacionog sloja
+- osnovne odlike protokola transportnog sloja:
+	-> TCP (Transmission Control Protocol)
+	- connection-oriented
+	- dostavlja fragmentovane segmente u originalnom redoslijedu
+	- pouzdana isporuka, kontrola toka
+	- TCP header se sastoji od 20 bajtova	
+	- bitni mehanizmi su:
+		* Three-way Handshakae
+		* Segment Reassembly
+		* Retransmission
+		* Windowing
+		
+	-> UDP (User Datagram Protocol)
+	- connectionless
+	- best effort
+	- malo opterecenje po cijenu pouzdanosti
+	- UDP header od 8 bajtova
+	- DNS, SNMP, DHCP, RIP, TFPT, On-line igre...
+- Portovi jedinstveno identifikuje aplikacije koje komuniciraju
+- kao i adrese, razlikujemo Source i Destination portove
+- serverski procesi imaju staticke portove, dok klijenti dinamicki dobijaju portove za svaku konverzaciju
+- IP Address + Port = Socket [npr. 192.168.1.20:80]
+- Soket je jednoznacan identifikator aplikacije na nekom hostu predstavljen kombinacijom njihovih IP adresa i brojeva portova koje koriste
+- jedan server ne moze da koristi jedan isti port za dvije razlicite usluge (npr. HTTP i FTP)
+- pri handshake-u klijenta sa serverom, server klijentu dodjeljuje neki od slobodnih portova
+- uspostavljanje konekcije se vrsi putem Three-way Handshake-a:
+	1. utvrdjivanje da je uredjaj na mrezi 		-|-> Pripremna faza
+	2. potvrda o usluzi uredjaja na datom portu	-|
+
+	3. obavjestavanje uredjaja o uspostavljanju	-|-> Zavrsetak rukovanja 
+		komunikacije				-|
+- unutar TCP zaglavlja postoji jednobajtno polje za odredjivanje flegova:
+	1. URG (urgent) - naznacuje da se isporuceni segment mora odmah procesirati
+	2. ACK (acknowledgement) - potvrda uspjesnog primanja segmenta
+	3. PSH (push) - guranje podataka aplikacionom sloju
+	4. RST (reset) - resetovanje konekcije (ponistavanje 3way handshake-a)
+	5. SYN (synchronization) - sinhronizacija pri uspostavljanju veze
+	6. FIN (finish) - naznacuje da nema vise podataka za slanje pri zatvaranju veze
+- pri slanju segmentirane poruke, ne moraju svi paketi pratiti istu putanju, sto moze dovesti do nerasporedjenog niza primljenih segmenata -> TCP vrsi reasembliranje primljenih segmenata
+- windowing - umjesto potvrdjivanja uspjesnog primljenog bajta, bajt-po-bajt, ideja je da se primi sekvenca bajtova pa da se potvrdi samo zadnji
+	- ACK number (poljem 0 -:- 2^32 - 1 ) - redni broj sledeceg ocekivanog bajta
+	- ne mijesati sa flagom ACK
+
+
+
+*** [09] Aplikacioni sloj ***
+- prezentacioni sloj sluzi za kodiranje, kompresiju, enkripciju i sl.
+- sloj sesije sluzi za odrzavanje dijaloga izmedju source i destination (uplink)
+- vecina aplikacija imaju ugradjene slojeve sesije, prezentacije i aplikacije
+- Client-server model:
+	- jedan od dva osnovna nacina za pristup udaljenim podacima
+	- procesi se izvrsavaju na aplikacionom sloju
+	- centralizacija, laksa implementacija sigurnosti
+- Peer-to-Peer (P2P) model:
+	- svaki klijent moze da bude i server - decentralizacija
+	- teska implementacija sigurnosti (posrednik)
+- Protokoli aplikacionog sloja:
+	|- DNS -|- Telnet -|- SMTP -|- DHCP -|- Web -|- FTP -|
+- implementacija vise protokola na jednoj mrezi putem servera cini Serversku farmu (Server farm)
+- DNS <-> rDNS (Reverse DNS), radi na portu 53, a najcesce se koristi putem UDP protokola (moze i TCP)
+	- koristi pod-servis zvan DNS Resolver, koji DNS serveru prosljedjuje upit za IP adresu i 		vraca odgovor
+	- tako pribavljeno simbolicko ime se cuva u DNS kesu uredjaja
+- DNS razgranicava domene na vise nivoa u hijerarhijskoj strukturi stabala:
+	- cvor domena prvog nivoa (top-level domain) se naziva jos i root, koji nema poseban 			simbolicki naziv
+	- top-level domeni se mogu podijeliti na genericke ili opste domene, poput 				domena .com, .net, .org... ili .ba, .rs, .me
+- FQDN (Fully Qualified Domain Name) sastoji se od 
+- DNS zapis je formata
+	{naziv} {TTL [seconds]} klasa tip podaci
+- format poruke za DNS Query i DNS Reply je isti, razlikuju se samo u sadrzaju
+- DNS Query (upit) se moze vrsiti 
+	a. rekurzivno (nadlezni lokalni DNS server pribavlja ugnjezdene poddomene) 
+	b. iterativno (klijent komunicira sa vise DNS servera, redom)
+- HTTP (Hypertext Transfer Protocol) sluzi za klijent-server okruzenje u stilu upit-odgovor
+	GET 	- dobijanje resursa
+	POST	- slanje/izmjena resursa
+	PUT	- slanje/kreiranje resursa
+	DELETE	- brisanje resursa
+	HEAD	- dobijanje zaglavlja web servera
+	OPTIONS	- dobijanje dodatnih informacija 
+- za komunikaciju na aplikacionom sloju sa serverom se koristi HTTP/S, a na transportnom TCP
+- za daljinsku komunikaciju koristi se Telnet (plaintext), SSH (Secure Shell), VNC, RDP 
+- za DHCP, pri prvom povezivanju klijenta u mrezi, salje se DHCPDISCOVER poruka (broadcast), a ukoliko klijent primi DHCPOFFER (reply, unicast), tada se komunikacija nastavlja za potencijalno dobijanje IP adrese:
+	1. DHCPDISCOVER (broadcast) -> DHCPOFFER (unicast)
+	2. DHCPREQUEST (unicast)    -> DHCPACK (unicast)
+- klijent radi na UDP portu 67, a server odgovara na UDP portu 68
+- jos: 	[MUA, SMTP, POP, POP3, IMAP] - mejl
+	[FTP, TFTP] - fajl
+	[SNMP, NTP] - mrezni protokoli
+

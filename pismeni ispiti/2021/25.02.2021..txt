@@ -1,0 +1,41 @@
+1.
+	Kabl 		Naziv interfejsa	Maks. podržana dužina segmenta		Tip kodovanja		Ukupan broj parica	Broj parica koje se koriste za primanje		UTP Kategorija	
+	10Base-T 	Ethernet		100m					Manchester		4 			1						Cat3/Cat5
+	100Base-TX 	FastEthernet		100m 					4B/5B			4 			2 						Cat5
+	1000Base-T 	GigabitEthernet		100m 					Linijsko(4D-Pam5) 	4			4						Cat5e
+2.	
+	I	86ddh -> IPv6 protokol
+	II	Next header ima isto značenje u IPv6 kao Protocol u IPv4; vrijednost je 11h -> UDP protokol
+	III	Hop limit ima isto značenje u IPv6 kao TTL u IPv4; vrijednost je 1, ima smisla ako su istoj mreži ili ako nema više rutera na putanji, 
+		u suprotnom, prvi ruter na putanji će da odbaci taj paket.
+	IV	Payload length u IPv6 i Packet length u IPv4 nemaju isto značenje jer Packet length pokazuje veličinu čitavog paketa, a Payload length veličinu paketa bez zaglavlja
+	V	Poklapa se kraj IPv6 adrese i druga polovina MAC adrese (fe-8f-95) i...... ? 
+	VI	Source socket: fe80::a00:27ff:fefe:8f95 : 546
+		Dest socket:   ff02::1:2 : 547
+	VII 	52 / (14 + 40 + 8 + 4) = 52/66
+3.
+	I	IPv4 klase A: 2^31
+		IPv4 klase B: 2^30 -> 2 puta više iz klase A
+		Ipv4 klase C: 2^29
+		Ipv4 eksperimentalnih (klase E): 2^28 -> 2 puta više klase C -> T
+	II	Min 28B, maks 120B
+		Ako koristi UDP -> 14 + 20 + 8 + 28 + 4 = 74B > 64B (Min. za frejm) 
+		Ako koristi TCP -> 14 + 60 + 60 + 120 + 4 = 238B < 1518B (Maks. za frejm) -> T (?)
+	III	Mreže sa privatnim adresama: 192.168.10.0, 10.10.10.0, 10.10.10.4 -> F
+4.
+	Neće proći zato što na R2 ruteru nije postavljena nijedna ruta osim podrazumijevanih, pa poruka ne može doći do R1 Fa0/0 (?)
+5.
+	I	ISP ruter:0.0.0.0-0.0.0.0-172.32.200.2
+		ISP ruter:209.165.200.0-255.255.255.252-172.32.200.5
+		R1:192.168.10.0-255.255.255.0-10.10.10.1
+		R1:192.168.10.0-255.255.255.0-10.10.10.5
+		R1:0.0.0.0-0.0.0.0-172.32.200.6
+		R2:0.0.0.0-0.0.0.0-10.10.10.2
+		R3:0.0.0.0-0.0.0.0-10.10.10.6
+	II	* - 192.168.10.1 (Trebalo bi da može i 192.168.10.2 zavisno od default gateway-a) -> Ovaj odgovor nije jednoznačan
+		** - 01-00-5e-00-00-02
+		*** - ff-ff-ff-ff-ff-ff
+		**** - 192.168.10.255
+	III	4 različite MAC adrese (2 od hostova i po 1 za svaki od 2 rutera na putanji jer su ruteri povezani serijskim vezama)
+		2 različite IP adrese (source i dest host)
+		2 različita porta (23 za telnet i dinamički za hosta koji šalje komandu)

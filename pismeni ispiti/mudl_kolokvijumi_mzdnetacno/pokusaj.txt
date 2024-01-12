@@ -1,0 +1,80 @@
+*** ============================================================ ***
+*** --------------------- PRVI KOLOKVIJUM ---------------------- ***
+*** ============================================================ ***
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------
+
+
+*** ============================================================ ***
+*** --------------------- DRUGI KOLOKVIJUM --------------------- ***
+*** ============================================================ ***
+
+1. Na slici je prikazan Ethernet frejm u heksadecimalnom zapisu (bez preambule, Start of Frame delimiter i Frame Check Sequence polja). U zapisu postoji 5 redova i 16 kolona. Na osnovu priloga sa zaglavljima odgovoriti na pitanja:
+	I. Šta stoji u polju Protocol IP zaglavlja? Objasniti pronađenu vrijednost. (1)
+		- 0x06, specifikuje da li je UDP datagram ili TCP segment (TCP u ovom slucaju)
+	II. Koji su flegovi postavljeni u TCP zaglavlju? Objasniti ih. (1.5)
+		- Postavljeni su ACK i PSH flegovi.
+		ACK: Uspjesno primljen paket (segment)
+		PSH: Signalizira prijemniku da zapocne obradu paketa (umjesto bufferovanja)
+	III. Kako će biti postavljeno polje Sequence Number u odgovoru na dati segment, a kako u 			sljedećem segmentu koji bude slao ovaj host? (3)
+		- Odgovor: 0xc04087cf + 0x20 = c040 87ef
+		- Sledeci segment: 0xc04087cf + 0x20 + 0x0f = c040 87fe
+	IV. O kakvoj poruci se radi? (0.5)
+	V. Kolika je procentualna količina korisnih informacija u segmentu? Obrazložiti. (3)
+		15 / (32+32+5) = 15/69 = 21.74%
+
+Frejm:
+
+1  2  3  4  5  6  7  8    9  10 11 12 13 14 15 16
+00 A0 CC 3B BF FA 00 00 | C0 9F A0 97 08 00 45 10
+00 37 22 2C 00 00 40 06 | D7 31 C0 A8 00 01 C0 A8
+00 02 00 17 04 E6 C0 40 | 87 CF 04 53 D8 8B 80 18
+43 C5 0D 09 00 00 01 01 | 08 0A 00 05 4B 64 00 16
+0A 27 FF FD 25
+
+Ethernet:
+Destination MAC: 00-a0-cc-3b-bf-fa
+Source MAC: 00-00-c0-9f-a0-97
+Len/Type: 0x0800
+
+IPv4:
+Ver.: 0x4
+IHL: 0x5
+Service Type: 0x10
+Packet length: 0x0037
+Identification: 0x222c
+Flag (3b) + Fragment offset (13b): 0000
+TTL: 0x40
+Protocol: 0x06
+Header Checksum: 0xd731
+Source Address: c0-a8-00-01
+Destination Address: c0-a8-00-02
+
+TCP:
+Source Port: 0x0017 = 7 + 16 = 23
+Dest. Port: 0x04e6 = 6 + 15 * 16 + 4 * 16^2 = 1270
+Seq. Number: c0-40-87-cf
+Ack. Number: 04-53-d8-8b
+HL/Reserved/Bits: 0x8018 = 1000|0000 00|01 1000
+	0	1	1	0	0	0
+	URG	ACK	PSH	RST	SYN	FIN
+Header length (MNOZI SE SA 4): 0b1000 * 4 = 8 * 4 = 32 bajta
+Window: 0x43c5 = 16384
+Checksum: 0x0d09
+Urgent: 0x0000
+Data: 01-01-08-0a-00-05-4b-64-00-16-0a-27-ff-fd-25 = 15 bajtova
+
+
+2. Napisati po jednu IPv4 sumarnu adresu za svaku od klasa A, B i C. (3)

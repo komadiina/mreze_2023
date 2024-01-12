@@ -1,0 +1,20 @@
+List of TCP flags
+TCP flags are used with TCP packet transfers to indicate a particular connection state. This is required for troubleshooting purposes. Information from Flags also control how a particular connection is handled. There are few TCP flags that are commonly used –
+
+
+URG (1 bit – URGENT): The urgent flag is used to notify the receiver to process the urgent packets before processing all other packets. The receiver will be notified when all data has been received.
+ 
+
+ACK (1 bit – ACKNOWLEDGE): The acknowledgment flag is used to acknowledge the successful receipt of a packet. The receiver sends an ACK as well as a SYN in the second step of the three way handshake process to tell the sender for receiving its initial packet.
+ 
+
+PSH (1 bit – PUSH): Push flag is somewhat similar to the URG flag and tells the receiver to process these packets as they are received instead of buffering them.
+ 
+
+RST (1 bit – RESET): Reset the connection. It indicates the receiver to terminate the connection immediately when unrecoverable errors occur. It causes both the sides to release the connection and all its resources abnormally. The transfer of data ceases in both the directions. It may result in the loss of data that is in transit.
+ 
+
+SYN (1 bit – SYNCHRONIZE): It is used in first step of connection establishment phase or 3-way handshake process between the two hosts. This flag should be set to 1 when connection established between sender and receiver. This is used for synchronizing sequence number i.e. to tell the other end which sequence number they should accept.
+ 
+
+FIN (1 bit – FINISH): It is used to request for connection termination i.e. termination of connection between sender and receiver when there is no more data. This is the last packet sent by sender. It frees the utilised resources and gracefully terminates the connection.

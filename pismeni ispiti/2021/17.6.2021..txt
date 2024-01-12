@@ -1,0 +1,45 @@
+1.
+	I 	Packet length = 0030h = 48B
+		Frame length = Packet Length + 18B = 66B
+		UDP Datagram Length = 001ch = 28B
+	II	IHL = 5 -> 5 * 4 = 20B
+	III	Ni kroz jedan ruter jer je TTL postavljen na maksimalnu vrijednost, tj. FFh.
+	IV	11h -> UDP
+	V	Source Socket: 192.168.0.253 : C5BAh
+		Dest Socket: 192.168.0.10 : 69
+		Maska: 255.255.255.128 -> 255.255.255.1000 0000
+		Mreža source-a: 192.168.0.128, mreža dest.: 192.168.0.0 -> Ne pripadaju istoj mreži.
+	VI	TFTP poruka -> Manje sigurna verzija FTP.
+	VII	20/66
+	VIII	UDP ne koristi Ackowledgement number.
+2.
+	Interfejs S0/0/0 rutera R1 je najudaljeniji interfejs koji će vratiti Echo Reply ka PC1, jer je mreža 172.16.1.0 direktno povezana mreža ruteru R1.
+	Echo Request može da dođe do svakog uređaja/interfejsa, osim onih na mreži 172.16.3.0 jer R1 nema konfigurisanu rutu ka toj mreži.
+3.
+	I	F (Na jednom mjestu piše da IP paket može biti maks. 1500B, a na drugom 1518B zbog 600h iz zaglavlja frejma...)
+	II	T (Nije rečeno SAMO za IPv4 ili IPv6)
+	III	T
+	IV	T (1000 * 2^24 ~ 2^34 > 2^34)
+	V	F (CRC valjda koristi kompleksnije proračune/algoritme)
+4.
+	R1: :: :: 2001:db8:1:3::2
+	R2: 2001:db8:1::/62 2001:db8:1:1
+	3 različite CRC vrijednosti (jedna sa početka, i po jedna koju svaki ruter promijeni/postavi)
+	4 različite MAC adrese (od source do def. gatewaya i of def. gatewaya dest-a do dest-a)
+	2 različite IP adrese (source i destination)
+5.
+	I	R1: 147.91.1.0 255.255.255.0 10.3.3.2
+		R2: 0.0.0.0 0.0.0.0 10.3.3.1
+	II	Tip poruke	Mreža		Source MAC	Dest MAC	Source IP	Dest IP		Source port	Dest port
+		ICMP (TTL=1)	A		aa-aa		bb-bb		10.1.1.10	147.91.1.10	-		-
+		ICMP (TTL Exc.) A		bb-bb		aa-aa		10.1.1.1	10.1.1.10	-		-
+		ICMP (TTL=2)	A		aa-aa		bb-bb		10.1.1.10	147.91.1.10	-		-
+		ICMP (TTL=2)	C		11-11		22-22		10.1.1.10	147.91.1.10	-		-
+		ICMP (TTL Exc.) C		22-22		11-11		10.3.3.2	10.1.1.10	-		-
+		ICMP (TTL Exc.)	A		bb-bb		aa-aa		10.3.3.2	10.1.1.10	-		-
+		ICMP (TTL=3)	A		aa-aa		bb-bb		10.1.1.10	147.91.1.10	-		-
+		ICMP (TTL=3)	C		11-11		22-22		10.1.1.10	147.91.1.10	-		-
+		ICMP (TTL=3)	D		33-33		44-44		147.91.1.1	147.91.1.10	-		-
+		ICMP (Reply)	D		44-44		33-33		147.91.1.10	147.91.1.1	-		-
+		ICMP (Reply)	C		22-22		11-11		147.91.1.1	10.1.1.10	-		-
+		ICMP (Reply)	A		bb-bb		aa-aa		147.91.1.1	10.1.1.10	-		-					

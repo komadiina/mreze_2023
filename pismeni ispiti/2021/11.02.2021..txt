@@ -1,0 +1,82 @@
+1. 
+	I 	00 00 C0 i 00 a0 cc
+	II 	60 B = 00 3C
+	III	06 hex = TCP 
+	IV 	src IP : 	192.168.0.2
+		src port: 	04 e6 = 1024+ -> dinamički
+		dest IP: 	192.168.0.1
+		dest port: 	00 17 = 23 = TELNET
+	V	/29 
+		hostovi su u istoj mreži, a ARP ne ide van mreže
+		ARP tabela hosta sadrži mapiranje IP adresa : MAC adresa
+		src host u ARP tabeli ima: 	192.168.0.1 00-00-c0-9f-a0-97
+		dest host u ARP tabeli ima: 	192.168.0.2 00-a0-cc-3b-bf-fa
+	VI 	a0 02 = 1010 0000 0000 0010  => SYN = 1
+		Veličina zaglavlja = 10 * 4B = 40B
+		Uspostavlja three-way-handshake 
+	VII 	0
+	VIII	Telnet poruka
+	IX	100% zato što nema korisnih podataka
+2.
+	a)	multicast MAC 01-00-5E-0XXX XXXX-XXXX XXXX-XXXX XXXX = 2^23 adresa
+	b)	multicast IPv4  => 	D klasa 1110 = 2^28 adresa
+	c)	multicast IPv6 FF00::/8 => 128 -8 = 120b = 2^(120) adresa
+3.	multicast MAC => multicast IP = 32 adrese
+	224 - 239.0.0.2
+	224 - 239.128.0.2
+4.	40B - 120B jer je min veličina IP i TCP PDU-ova 20B, a maksimalna 60B.
+5.
+	ping loopback adrese će proći ukoliko nismo povezani na mrežu, dok ping neće proći(moramo biti povezani u mrežu)
+	https://www.quora.com/What-is-the-difference-between-pinging-a-loop-back-address-and-pinging-ones-own-IP-address
+
+6. 
+		Tip kabla		Kategorija	Duplex		Max. distanca
+10Base5		Thicknet Coaxial   	-		half		500m
+100Base-FX	Optički			-		-		400m(half)+2km(full) 	Da li treba da navedemo oba?
+1000BaseT	UTP		  	Cat5e		full		100m
+
+7.	DHCP discover
+	UDP port number 67 is the destination port of a server, and UDP port number 68 is used by the client. 
+
+	src IP		src port	dest IP			dest source	
+	0.0.0.0		68		255.255.255.255		67
+8.
+	I.	DNS server može koristiti TCP vezu
+		parovi: broj = 5 parova (? Da li je uspostavljen telnet na posrednim uređajima ?)
+		PC1 - DNS server
+		PC1 - HTTP
+		DHCP server - DNS server
+		DNS server - HTTP server
+		DHCP - HTTP
+		A ako DNS ne koristi TCP vezu onda postoji 3 para uređaja.
+	II.	
+		Ruter 1: 147.91.1.0 - 255.255.255.0 - 10.3.3.2
+		Ruter 2: 0.0.0.0 - 0.0.0.0 - 10.3.3.1
+	III.
+		Tip poruke	Mreža gdje je poruka		Src MAC		Dest MAC	Src IP		Dest IP		Src port	Dest port
+		TCP SYN		A				aa-aa		bb-bb		10.1.1.10	147.91.1.10	1024+		80
+		TCP SYN		C				11-11		22-22		10.1.1.10	147.91.1.10	1024+		80
+		TCP SYN		D				33-33		44-44		10.1.1.10	147.91.1.10	1024+		80
+		TCP SYN+ACK	D				44-44		33-33		147.91.1.10	10.1.1.10	80		1024+
+		TCP SYN+ACK	C				22-22		11-11		147.91.1.10	10.1.1.10	80		1024+
+		TCP SYN+ACK	A				bb-bb		aa-aa		147.91.1.10	10.1.1.10	80		1024+
+		TCP ACK		A				aa-aa		bb-bb		10.1.1.10	147.91.1.10	1024+		80
+		TCP ACK		C				11-11		22-22		10.1.1.10	147.91.1.10	1024+		80
+		TCP ACK		D				33-33		44-44		10.1.1.10	147.91.1.10	1024+		80
+		HTTP Request    A				aa-aa		bb-bb		10.1.1.10	147.91.1.10	1024+		80
+		HTTP Request	C				11-11		22-22		10.1.1.10	147.91.1.10	1024+		80
+		HTTP Request	D				33-33		44-44		10.1.1.10	147.91.1.10	1024+		80
+		HTTP Reply	D				44-44		33-33		147.91.1.10	10.1.1.10	80		1024+
+		HTTP Reply	C				22-22		11-11		147.91.1.10	10.1.1.10	80		1024+
+		HTTP Reply	A				bb-bb		aa-aa		147.91.1.10	10.1.1.10	80		1024+
+		TCP FIN		A				aa-aa		bb-bb		10.1.1.10	147.91.1.10	1024+		80
+		TCP FIN		C				11-11		22-22		10.1.1.10	147.91.1.10	1024+		80
+		TCP FIN		D				33-33		44-44		10.1.1.10	147.91.1.10	1024+		80
+		TCP FIN+ACK	D				44-44		33-33		147.91.1.10	10.1.1.10	80		1024+
+		TCP FIN+ACK	C				22-22		11-11		147.91.1.10	10.1.1.10	80		1024+
+		TCP FIN+ACK	A				bb-bb		aa-aa		147.91.1.10	10.1.1.10	80		1024+
+		TCP ACK		A				aa-aa		bb-bb		10.1.1.10	147.91.1.10	1024+		80
+		TCP ACK		C				11-11		22-22		10.1.1.10	147.91.1.10	1024+		80
+		TCP ACK		D				33-33		44-44		10.1.1.10	147.91.1.10	1024+		80
+		
+

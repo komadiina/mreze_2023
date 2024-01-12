@@ -1,0 +1,37 @@
+1.
+	I	Jer je vrijednost veća od 600h. Tri protokola: IPv4 (0800h), IPv6 (08d6h) i ARP (0806h).
+	II	00 2a
+	III	Nema IP zaglavlja.
+	IV	42B. Nije predstavljen FCS.
+	V	IP adresa hosta (iz ARP zaglavlja) je 192.168.21.178
+		IP adresa destinacije je 192.168.21.241
+		Moraju biti na istoj mreži -> Mora biti bar 64 hosta -> Host može da ima mrežne maske: /25 i manje.
+	VI	192.168.21.241 00-80-91-71-e5-1a
+2.
+	I	Tačno jer sve multicast IPv6 adrese dijele prvih 8 bitova i onda se sumarna adresa može prikazati koa FF::/8.
+	II	Netačno, ne uvijek, IPv6 ima fiksno zaglavlje dužine 40B, dok IPv4 može biti dužine 20B-60B.
+	III	Tačno, ponovljeno, 1000 * 2^24 > 2^32
+	IV	Netačno, ponovljeno, CRC zahtijeva komplesnije proračune.
+3.
+			Tip kabla	Vrsta/Kategorija	Kategorija	Maks. distanca		
+	10Base2		Koaksijalni	Thinnet			BNC		185m
+	10Base5		Koaksijalni	Thicknet		AUI DB-15	500m
+	10BaseT		UTP		Cat3/Cat5		RJ45		100m
+4.
+	A klasa - 0.0.0.0/1
+	B klasa - 128.0.0.0/2
+	C klasa - 192.0.0.0/3
+5.
+	I	R1: 192.168.2.0 - 255.255.255.252 - Gig0/0
+		R1: 0.0.0.0 - 0.0.0.0 - Gig0/0
+		R2: 192.168.1.0 - 255.255.255.0	- Gig0/0
+		R2: 0.0.0.0 - 0.0.0.0 - Gig0/0
+		R3: 0.0.0.0 - 0.0.0.0 - Gig0/1
+	II	1 TCP veza (samo host PC0 ka interfejstu rutera prilikom telneta)
+	III	Minimalno 14+20+20+4+padding = 64B
+		Maksimalno 14+60+60+4 = 138B
+	IV	192.168.1.10	aa-aa
+		10.0.0.3	ee-ee
+	V	cc-cc	Fa0/1
+		dd-dd	Fa0/2
+		ee-ee	Fa0/3

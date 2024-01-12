@@ -1,0 +1,31 @@
+1.
+	I	Predstavlja tip protokola na višem sloju zato što je vrijednost (0800h) veća od 600h.
+	II	Paket je fragmentiran zato što je Identification polje != 0.
+	III	Postavljeno je na vrijednost 29h što označava da se radi o tunelovanju.
+	IV	Ponovljeno, nema, Packet length predstavlja veličinu čitavog paketa, a Payload length veličinu paketa bez zaglavlja.
+	V	Source socket: 902:1:201:2ff:fee2:7596:2002:5183 : 21
+		Dest socket: 4383::5183:4383:15:402 : 1026
+	VI	FTP prenos (port 21)
+	VII	0x2537a51f + 6 (6B korisnih podataka se prenosilo)
+2.
+	Kod 10Base-T.
+	Mali rast pa pad na 0, pa opet mali rast pa pad na 0 itd. 1 se predstavlja kao rast, 0 kao pad.
+3.
+	3::/3
+4.
+	I	Svaki port sviča je jedan kolizioni domen. Svaki interfejs rutera je jedan broadcast domen.
+	II	
+	III	AA	Fa0/3
+		BB 	Fa0/3
+		CC	Fa0/4
+		DD	Fa0/2
+		EE	Fa0/2
+		11	Fa0/1
+	IV	
+5.
+	I	Ne, nevalidna maska.
+	II	Ne, broadcast adresa.
+	III	Da.
+	IV	Da.
+	V	Da.
+	VI	Ne, broadcast adresa.

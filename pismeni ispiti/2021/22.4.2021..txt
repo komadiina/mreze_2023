@@ -1,0 +1,55 @@
+1.
+	I	Veličina paketa je 92B, a veličina frejma 14 + 92 + 4 = 110B.
+	II 	01h -> ICMP protokol.
+	III	Nema socketa jer je ICMP poruka.
+	IV	64B (?)
+	V	Ovo je Echo Request poruka jer je polje Type u ICMP headeru postavljeno na 08, TTL je 1, a hostovi nisu na isotj mreži (različit početak IP adresa). 
+		Ukoliko postoji na putanji još rutera, odredišni host neće ni primiti paket, a ako ne postoji, onda će na njega odgovoriti sa Echo Reply porukom. (?)
+2.
+	I	Veličina paketa mora minimalno biti 46B -> F (?)
+	II	DNS - Domain Name System -> F
+	III	Protokoli kao HDLC, PPP ili Frame Relay ne koriste MAC adrese -> F
+	IV	Adresa iz C klase: 2^29
+		Multicast (D klasa): 2^28
+		Eksperimentalnih (E klasa): 2^28
+		2^29 = 2*2^29 -> T
+	V	Maks. veličina je 4*15 = 60B -> F
+3.
+	DHCP Offer poruka: 
+		Source Socket: 10.10.10.1 : 67
+		Dest Socekt: 255.255.255.255 : 68
+4.
+	I	255.255.255.224 -> /27 -> F
+	II	Ima default gateway -> T (?)
+	III	Ima default gateway -> F
+	IV	Možda je dobijena preko DHCP pa unešena ručno -> T
+5.	
+	6-8 L2 adresa (zavisi od rutiranja jer postoje dvije mreže između rutera)
+	4 L3 adrese (source, dest, lijevi interfejs prvog rutera i jedan od dva lijeva interfejsa drugog)
+	0 L4 adresa (ICMP poruka nema portove)
+6.
+	192.168.1.0 - 255.255.255.128 - 192.168.1.127 - .1-.126
+	192.168.1.128 - 255.255.255.224 - 192.168.1.159 - .129-.158
+	192.168.1.160 - 255.255.255.240 - 192.168.1.175 - .161-.174
+	192.168.1.176 - 255.255.255.252	- 192.168.1.179 - .177-.178
+	192.168.1.180 - 255.255.255.252	- 192.168.1.183 - .181-.182
+7.
+	10.21.1.2 00-40-85-17-44-c4 dynamic
+	Sender Hardware Address: 00 60 73 20 d6 32 -> njegova MAC adresa
+	Sender Protocol Address: 0a 15 01 01 -> njegova IP adresa
+	Target Hardware Address: 00 00 00 00 00 00 -> ne zna još uvijek dest MAC adresu
+	Target Protocol Address: 0a 15 01 02 -> dest IP adresa
+8.
+	Tip poruke - Mreža - Source MAC - Dest MAC - Source IP - Dest IP - Source Port - Dest Port
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
+	TCP - A - aa-aa - bb-bb	- 192.168.10.10	- 192.168.20.10 - 1024+	- 80
+	ICMP - A - bb-bb - aa-aa - 192.168.10.1	- 192.168.10.10	- / - /
