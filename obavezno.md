@@ -5,8 +5,8 @@
 
 Tip kabla | Bandwidth [Mbps] | UTP Kategorija | Distanca [m] | Duplex | Konektor | Interfejs switch-a | Tip kodovanja | # parica | # parica za primanje 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-10Base-2 | 10 | Thicknet Coaxial | 500 | Half | N-Con | FastEthernet | ? | ? | ?
-10Base-5 | 10 | Thinnet Coaxial | 185 | Half | BNC | FastEthernet | ? | ? | ? 
+10Base-5 | 10 | Thicknet Coaxial | 500 | Half | N-Con | FastEthernet | ? | ? | ?
+10Base-2 | 10 | Thinnet Coaxial | 185 | Half | BNC | FastEthernet | ? | ? | ? 
 10Base-T | 10 | Cat3/Cat5 | 100 | Half | RJ45 | FastEthernet | Manchester | 2 | 2
 100Base-TX | 100 | Cat5 | 100 | Half | RJ45 | FastEthernet | 4b5b | 2 | 2 
 100Base-TX | 200 | Cat5 | 100 | **Full** | RJ45 | FastEthernet | 4b5b | 2 | 2  
